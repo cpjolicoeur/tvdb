@@ -13,7 +13,13 @@ Just run `go get github.com/cpjolicoeur/tvdb`
     import "github.com/cpjolicoeur/tvdb"
 
     func main() {
+        // matches is an array of tvdb.Series entries that match
+        // the series you were searching for
         matches, err := tvdb.GetSeries("A-Team")
+
+        // To populate the episode and other information for a specific
+        // series, you run the `GetEpisodes()` function
+        err = matches[0].GetEpisodes()
     }
 
 
