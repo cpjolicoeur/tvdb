@@ -2,10 +2,12 @@ package tvdb
 
 import (
 	"encoding/xml"
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"net/http"
 	"net/url"
+	"strings"
 )
 
 const (
@@ -22,12 +24,14 @@ type EpisodesPacket struct {
 	EpisodeList []Episode `xml:"Episode"`
 }
 
+// Represents a TVDB Series
 type Series struct {
 	Name     string    `xml:"SeriesName"`
 	Id       string    `xml:"seriesid"`
 	Episodes []Episode `xml:"Episode"`
 }
 
+// Represents a TVDB Episode
 type Episode struct {
 	Id       string  `xml:"id"`
 	Name     string  `xml:"EpisodeName"`
@@ -65,11 +69,20 @@ func GetSeries(name string) ([]Series, error) {
 
 // GetEpisodes populates the Series with episode information
 func (s *Series) GetEpisodes() error {
+	if len(strings.TrimSpace(s.Id)) == 0 {
+		return errors.New("A Series.Id is required to GetEpisodes")
+	}
+
 	endpoint := fmt.Sprintf("%s/%s/series/%s/all/%s.xml", BASE_URL, TVDB_API_KEY, s.Id, LANGUAGE)
 	resp, err := http.Get(endpoint)
 	defer resp.Body.Close()
 	if err != nil {
 		return err
+	}
+
+	if resp.StatusCode == http.StatusNotFound {
+		msg := fmt.Sprintf("A series with the following ID could not be found: %s", s.Id)
+		return errors.New(msg)
 	}
 
 	var ePacket EpisodesPacket
