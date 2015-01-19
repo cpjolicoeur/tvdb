@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"net/url"
 )
 
 const (
@@ -41,7 +42,7 @@ type Episode struct {
 // GetSeries returns an array of Series entries that match
 // the given name parameter
 func GetSeries(name string) ([]Series, error) {
-	endpoint := fmt.Sprintf("%s/GetSeries.php?seriesname=%s&language=%s", BASE_URL, name, LANGUAGE)
+	endpoint := fmt.Sprintf("%s/GetSeries.php?seriesname=%s&language=%s", BASE_URL, url.QueryEscape(name), LANGUAGE)
 	resp, err := http.Get(endpoint)
 	defer resp.Body.Close()
 	if err != nil {
