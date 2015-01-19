@@ -16,14 +16,6 @@ const (
 	LANGUAGE     = `en`
 )
 
-type SeriesPacket struct {
-	SeriesList []Series `xml:"Series"`
-}
-
-type EpisodesPacket struct {
-	EpisodeList []Episode `xml:"Episode"`
-}
-
 // Represents a TVDB Series
 type Series struct {
 	Name     string    `xml:"SeriesName"`
@@ -53,18 +45,22 @@ func GetSeries(name string) ([]Series, error) {
 		return nil, err
 	}
 
-	var sPacket SeriesPacket
 	xmlBody, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		return nil, err
 	}
 
-	err = xml.Unmarshal(xmlBody, &sPacket)
+	type Data struct {
+		SeriesList []Series `xml:"Series"`
+	}
+	v := Data{}
+
+	err = xml.Unmarshal(xmlBody, &v)
 	if err != nil {
 		return nil, err
 	}
 
-	return sPacket.SeriesList, nil
+	return v.SeriesList, nil
 }
 
 // GetEpisodes populates the Series with episode information
@@ -85,17 +81,21 @@ func (s *Series) GetEpisodes() error {
 		return errors.New(msg)
 	}
 
-	var ePacket EpisodesPacket
 	xmlBody, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		return err
 	}
 
-	err = xml.Unmarshal(xmlBody, &ePacket)
+	type Data struct {
+		EpisodeList []Episode `xml:"Episode"`
+	}
+	v := Data{}
+
+	err = xml.Unmarshal(xmlBody, &v)
 	if err != nil {
 		return err
 	}
 
-	s.Episodes = ePacket.EpisodeList
+	s.Episodes = v.EpisodeList
 	return nil
 }
