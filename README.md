@@ -20,6 +20,11 @@ Just run `go get github.com/cpjolicoeur/tvdb`
         // To populate the episode and other information for a specific
         // series, you run the `GetEpisodes()` function
         err = matches[0].GetEpisodes()
+
+        // You can also create a Series entry directly if you already
+        // know it's TVDB id through other means
+        series := &tvdb.Series{Id: '123456'}
+        err = series.GetEpisodes()
     }
 
 
